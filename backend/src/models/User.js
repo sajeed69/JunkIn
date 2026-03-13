@@ -47,6 +47,24 @@ const userSchema = new mongoose.Schema(
             type: { type: String, enum: ['free', 'pro'], default: 'free' },
             expiresAt: Date,
         },
+        // Eco Rewards
+        eco_points: { type: Number, default: 0 },
+        reward_history: [
+            {
+                rewardType: { type: String, enum: ['gift_card', 'credit', 'coupon'], default: 'gift_card' },
+                amount: { type: Number, default: 0 },
+                label: { type: String, default: '' },
+                brand: { type: String, default: '' },
+                scratched: { type: Boolean, default: false },
+                claimed: { type: Boolean, default: false },
+                claimedAt: Date,
+                unlockedAt: { type: Date, default: Date.now },
+            },
+        ],
+        last_reward_timestamp: Date,
+        rewards_today: { type: Number, default: 0 },
+        rewards_today_date: { type: String, default: '' },
+        referral_code: { type: String, unique: true, sparse: true },
     },
     { timestamps: true }
 );

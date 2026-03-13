@@ -62,3 +62,9 @@ export const bidService = {
     getBids: (listingId) => api.get(`/bids/${listingId}`),
     getAuctions: (params) => api.get('/bids/auctions/active', { params }),
 };
+
+export const rewardService = {
+    getMyRewards: () => api.get('/rewards/me'),
+    scratchCard: (rewardId) => api.post(`/rewards/scratch/${rewardId}`),
+    awardPoints: (action) => api.post('/rewards/award', { action }),
+};

@@ -18,6 +18,7 @@ const adminRoutes = require('./modules/admin/admin.routes');
 const aiRoutes = require('./modules/ai/ai.routes');
 const notificationRoutes = require('./modules/notifications/notification.routes');
 const bidRoutes = require('./modules/bids/bid.routes');
+const rewardRoutes = require('./modules/rewards/reward.routes');
 const scrapController = require('./modules/scrap/scrap.controller');
 
 
@@ -75,6 +76,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/bids', bidRoutes);
+app.use('/api/rewards', rewardRoutes);
 
 // 404
 app.all('*', (req, res) => {

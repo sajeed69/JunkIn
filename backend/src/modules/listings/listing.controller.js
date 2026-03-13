@@ -1,6 +1,7 @@
 const Listing = require('../../models/Listing');
 const User = require('../../models/User');
 const axios = require('axios');
+const { awardPoints } = require('../rewards/reward.service');
 
 // POST /api/listings
 exports.createListing = async (req, res) => {
@@ -138,6 +139,15 @@ exports.createListing = async (req, res) => {
 
     res.status(201).json({ success: true, listing });
 
+    // ── Award Eco Points (non-blocking) ──
+    try {
+        await awardPoints(req.user._id, 'listing');
+        if (listing.is_rare_item) {
+            await awardPoints(req.user._id, 'rare_listing');
+        }
+    } catch (e) {
+        console.error('[ECO] Points award failed (non-blocking):', e.message);
+    }
 };
 
 // GET /api/listings
@@ -229,4 +239,11 @@ exports.expressInterest = async (req, res) => {
     }
 
     res.json({ success: true, message: 'Interest registered! Seller will be notified.' });
+
+    // Award eco points to the seller
+    try {
+        await awardPoints(listing.userId, 'sell');
+    } catch (e) {
+        console.error('[ECO] Sell points failed (non-blocking):', e.message);
+    }
 };
