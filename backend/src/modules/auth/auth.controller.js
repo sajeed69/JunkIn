@@ -46,35 +46,44 @@ const sendOtpEmail = async (email, otp) => {
 
 // POST /api/auth/register
 exports.register = async (req, res) => {
-    const { name, email, phone, password, role } = req.body;
+    try {
+        const { name, email, phone, password, role } = req.body;
 
-    const existing = await User.findOne({ email });
-    if (existing) {
-        if (existing.isVerified) {
-            return res.status(409).json({ success: false, message: 'Email already registered.' });
+        const existing = await User.findOne({ email });
+        if (existing) {
+            if (existing.isVerified) {
+                return res.status(409).json({ success: false, message: 'Email already registered.' });
+            }
+            // Delete old unverified account so user can re-register
+            await User.deleteOne({ _id: existing._id });
+            console.log(`[AUTH] Deleted unverified account for ${email}, allowing re-registration`);
         }
-        // Delete old unverified account so user can re-register
-        await User.deleteOne({ _id: existing._id });
-        console.log(`[AUTH] Deleted unverified account for ${email}, allowing re-registration`);
+
+        const otp = generateOtp();
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        const user = await User.create({
+            name, email, phone, password, role: role || 'user', otp, otpExpiry,
+            isVerified: false,
+            isApproved: role !== 'kabadiwala', // kabadiwala needs approval
+        });
+
+        // Send OTP via email
+        await sendOtpEmail(email, otp);
+
+        res.status(201).json({
+            success: true,
+            message: 'Registration successful. OTP sent to your email.',
+            userId: user._id,
+        });
+    } catch (err) {
+        console.error('[AUTH ERROR] Registration failed:', err);
+        res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || 'Registration failed. Please try again.',
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
     }
-
-    const otp = generateOtp();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    const user = await User.create({
-        name, email, phone, password, role: role || 'user', otp, otpExpiry,
-        isVerified: false,
-        isApproved: role !== 'kabadiwala', // kabadiwala needs approval
-    });
-
-    // Send OTP via email
-    await sendOtpEmail(email, otp);
-
-    res.status(201).json({
-        success: true,
-        message: 'Registration successful. OTP sent to your email.',
-        userId: user._id,
-    });
 };
 
 // POST /api/auth/verify-otp
