@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - junkin-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/junkin
+      - JWT_SECRET=your_jwt_secret
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - mongodb
+      - ai-service
+    networks:
+      - junkin-network
+
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "8000:8000"
+    networks:
+      - junkin-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - junkin-network
+
+networks:
+  junkin-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

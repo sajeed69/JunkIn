@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JunkIn AI Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#2ecc70",
+                "background-light": "#f6f8f7",
+                "background-dark": "#131f18",
+              },
+              fontFamily: {
+                "display": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between border-b border-solid border-primary/10 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md px-6 md:px-20 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined block" data-icon="recycling">recycling</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">JunkIn <span class="text-primary">AI</span></h2>
+</div>
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-colors hover:bg-slate-300">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+<main class="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+<div class="space-y-6">
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-emerald-400 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+<div class="relative aspect-square w-full rounded-xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl bg-slate-100 dark:bg-slate-900">
+<img alt="Uploaded vintage bicycle" class="w-full h-full object-cover" data-alt="A vintage green road bicycle against a wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFEqEva-_lIVHSU6o1NWyyMAhspGkVzICMpc1X-brdgA5UMLMSxPVAXuD6Zq9jpP0zow_bhRIC5hAqOf9cd3XU8JQqFz-A8coEpAcdrCG0ArWUKwMfsUE-QeQUUr2-23WB2sYey2dZq_ByuFKBhP_3kt8-5NsEziTrohitL8tJERTm_6OU68iLQ42rpXNQXMMpiOrPdHqLk53_NR7bWq3ezF87dk3TeMosC98pjjWXgZm1HTAeBKWiTdJyxCQce9oMulJQAgJ_Q7Is"/>
+<div class="absolute top-4 left-4">
+<span class="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                                        Analyzed
+                                    </span>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl scale-150">auto_awesome</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-primary" data-icon="auto_graph">auto_graph</span>
+<h3 class="text-lg font-bold">AI Decision Recommendation</h3>
+</div>
+<div class="bg-primary text-white px-4 py-2 rounded-lg inline-block font-bold mb-3 shadow-md">
+                                High chance of selling!
+                            </div>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Our vision model identified this as a <strong>Vintage Trek MultiTrack</strong>. Based on local market trends, similar items sell within 48 hours. We highly recommend listing for <strong>Resale</strong>.
+                            </p>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex flex-col gap-1">
+<h1 class="text-4xl font-black tracking-tight">Analysis Results</h1>
+<p class="text-slate-500 dark:text-slate-400">Intelligent valuation for your uploaded item</p>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="local_offer">local_offer</span>
+                                        Resale Value
+                                    </div>
+<span class="text-emerald-500 text-sm font-bold bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">+15% vs last week</span>
+</div>
+<div class="text-3xl font-black text-slate-900 dark:text-slate-100">$30.00 - $50.00</div>
+</div>
+<div class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+<span class="material-symbols-outlined text-amber-500 text-sm" data-icon="precision_manufacturing">precision_manufacturing</span>
+                                        Scrap Value
+                                    </div>
+<span class="text-slate-400 text-sm font-bold">+2%</span>
+</div>
+<div class="text-3xl font-black text-slate-900 dark:text-slate-100">$12.45</div>
+</div>
+<div class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+<span class="material-symbols-outlined text-blue-500 text-sm" data-icon="trending_up">trending_up</span>
+                                        Resale Probability
+                                    </div>
+<span class="text-rose-500 text-sm font-bold">-5% trend</span>
+</div>
+<div class="flex items-end gap-4">
+<div class="text-3xl font-black text-slate-900 dark:text-slate-100">85%</div>
+<div class="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full mb-2 relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3 pt-4">
+<button class="w-full flex items-center justify-center gap-3 bg-primary hover:bg-emerald-600 text-white h-14 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                                List for Resale
+                            </button>
+<button class="w-full flex items-center justify-center gap-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 h-14 rounded-xl font-bold text-lg transition-all transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete_sweep">delete_sweep</span>
+                                Convert to Scrap
+                            </button>
+</div>
+<div class="flex items-center justify-center gap-8 py-4 opacity-50">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-2xl" data-icon="eco">eco</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Eco-Friendly</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-2xl" data-icon="security">security</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Safe Pick-up</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-2xl" data-icon="bolt">bolt</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Fast Payment</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 p-8 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-900 border border-slate-200 dark:border-slate-800">
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1 space-y-2">
+<h4 class="text-xl font-bold">Why trust JunkIn AI?</h4>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                Our neural network processes over 10 million marketplace listings daily to give you real-time valuation accuracy within 98%. Your choice helps reduce landfill waste by ensuring items find their next best life.
+                            </p>
+</div>
+<div class="relative w-32 h-32 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle class="text-slate-200 dark:text-slate-800" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="50.24" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="text-center">
+<div class="text-2xl font-black">98%</div>
+<div class="text-[8px] uppercase font-bold text-slate-500">Confidence</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-auto px-6 py-8 text-center text-slate-400 text-sm">
+                © 2024 JunkIn AI Analysis. Powered by CleanTech Vision.
+            </footer>
+</div>
+</div>
+</body></html>
