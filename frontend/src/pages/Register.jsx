@@ -158,9 +158,9 @@ export default function Register() {
                                     <span className="material-symbols-outlined text-3xl">sms</span>
                                 </div>
                                 <p className="text-slate-500 text-sm">
-                                    Enter the 6-digit code sent to your email/phone.
+                                    Enter the 6-digit code sent to your email.
                                 </p>
-                                <p className="text-xs text-slate-400 mt-1">(Check backend console in demo mode)</p>
+                                <p className="text-xs text-slate-400 mt-1">Make sure to check your spam folder.</p>
                             </div>
                             <Input
                                 label="OTP Code"
