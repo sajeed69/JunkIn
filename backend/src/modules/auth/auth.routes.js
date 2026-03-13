@@ -28,15 +28,8 @@ const loginSchema = Joi.object({
     password: Joi.string().required(),
 });
 
-const otpSchema = Joi.object({
-    userId: Joi.string().required(),
-    otp: Joi.string().length(6).required(),
-});
-
 router.post('/register', validate(registerSchema), ctrl.register);
 router.post('/login', validate(loginSchema), ctrl.login);
-router.post('/verify-otp', validate(otpSchema), ctrl.verifyOtp);
-router.post('/resend-otp', ctrl.resendOtp);
 
 const protect = require('../../middleware/auth');
 router.get('/me', protect, ctrl.getMe);

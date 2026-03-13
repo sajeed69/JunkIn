@@ -47,16 +47,10 @@ export function AuthProvider({ children }) {
 
     const register = async (userData) => {
         const { data } = await api.post('/auth/register', userData);
-        toast.success('Registration successful! Please verify your OTP.');
-        return data;
-    };
-
-    const verifyOtp = async (payload) => {
-        const { data } = await api.post('/auth/verify-otp', payload);
         localStorage.setItem('junkin_token', data.token);
         setToken(data.token);
         setUser(data.user);
-        toast.success('Verified successfully!');
+        toast.success(`Welcome to JunkIn, ${data.user.name}!`);
         return data.user;
     };
 
