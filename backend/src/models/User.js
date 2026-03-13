@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
         last_reward_timestamp: Date,
         rewards_today: { type: Number, default: 0 },
         rewards_today_date: { type: String, default: '' },
-        referral_code: { type: String, unique: true, sparse: true },
+        referral_code: { type: String, default: null },
     },
     { timestamps: true }
 );
