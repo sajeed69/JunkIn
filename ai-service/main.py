@@ -337,6 +337,68 @@ async def web_search_rarity(query: str) -> Dict:
     return {"signals": signals, "snippets": snippets[:5], "score": score}
 
 
+async def ai_rarity_fallback(item_name: str, brand: str, category: str, description: str) -> Dict:
+    """
+    AI-based rarity analysis fallback when web search fails.
+    Uses Groq to assess collectibility directly.
+    """
+    signals = []
+    snippets = []
+    score = 0
+
+    if not client:
+        return {"signals": signals, "snippets": snippets, "score": score}
+
+    try:
+        prompt = f"""Analyze the rarity and collectibility of this item. Be honest and realistic.
+
+Item: {item_name}
+Brand: {brand}
+Category: {category}
+Description: {description or 'N/A'}
+
+Return ONLY a JSON object:
+{{
+    "is_collectible": true/false,
+    "rarity_score": 0-10,
+    "signals": ["list", "of", "rarity", "signals"],
+    "reasoning": "brief explanation of why this item is or isn't rare/collectible",
+    "estimated_collector_value_usd": 0
+}}
+
+Rules:
+- Common everyday items (normal phones, basic clothes, regular furniture) should score 0-2
+- Vintage/retro items from notable brands should score 3-5
+- Limited editions, discontinued models, antiques should score 5-8
+- Truly rare collectibles should score 8-10
+- Be realistic, don't inflate scores"""
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a collectibles and antiques expert. Return JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=300,
+            response_format={"type": "json_object"},
+        )
+
+        data = json.loads(response.choices[0].message.content.strip())
+        score = min(data.get("rarity_score", 0), 10)
+        signals = data.get("signals", [])
+        reasoning = data.get("reasoning", "")
+        if reasoning:
+            snippets.append(f"AI Analysis: {reasoning[:200]}")
+
+        print(f"[RARITY] AI fallback result: score={score}, signals={signals}")
+
+    except Exception as e:
+        print(f"[RARITY] AI fallback error: {str(e)}")
+
+    return {"signals": signals, "snippets": snippets, "score": score}
+
+
 def get_rarity_label(score: int) -> str:
     """Map rarity score to a human-readable label."""
     if score >= 10:
@@ -403,6 +465,14 @@ Return ONLY a JSON object:
         rarity_score = search_results["score"]
         rarity_signals = search_results["signals"]
         search_snippets = search_results["snippets"]
+
+        # Step 3b: If web search failed/returned nothing, use AI fallback
+        if rarity_score == 0 and len(rarity_signals) == 0:
+            print("[RARITY] Web search returned nothing, using AI fallback...")
+            ai_results = await ai_rarity_fallback(item_name, brand, req.category or "", req.description or "")
+            rarity_score = ai_results["score"]
+            rarity_signals = ai_results["signals"]
+            search_snippets = ai_results["snippets"]
 
         # Step 4: Bonus points from condition/age context
         condition_lower = req.condition.lower() if req.condition else ""
