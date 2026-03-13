@@ -7,6 +7,9 @@ Powered by an AI Decision Engine, JunkIn analyzes every item to recommend whethe
 ## 🚀 Key Features
 
 - **AI-Driven Decision Engine**: Instantly analyzes items (images/text) to provide resale and scrap value estimates.
+- **Rare Item Detection**: AI-powered rarity analysis that performs web searches to identify high-value/limited-edition items for collectors.
+- **Collector Bidding Marketplace**: Dedicated auction-style platform where verified collectors can bid on rare items detected by AI.
+- **Eco Rewards Gift Card System**: Gamified incentive system where users earn Eco Points for sustainable actions and unlock scratch cards for digital gift cards.
 - **Dual-Mode Marketplace**:
   - **Reuse Mode**: Peer-to-peer marketplace for functional items.
   - **Scrap Mode**: Scheduled professional pickups for recyclables with transparent pricing.
