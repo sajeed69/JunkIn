@@ -72,6 +72,43 @@ exports.createListing = async (req, res) => {
         listing.status = 'active';
         await listing.save();
         console.log("Final listing saved to DB with AI results");
+
+        // ── Rarity Analysis (non-blocking) ──
+        try {
+            console.log("[RARITY] Starting rarity analysis for:", listing.title);
+            const rarityResponse = await axios.post(
+                `${process.env.AI_SERVICE_URL || 'http://localhost:8001'}/analyze-rarity`,
+                {
+                    title: listing.title,
+                    category: listing.category,
+                    condition: listing.condition,
+                    brand: listing.brand,
+                    description: listing.description,
+                    identified_item: ai.identified_item || listing.title,
+                },
+                { timeout: 20000 }
+            );
+
+            const rarity = rarityResponse.data;
+            console.log("[RARITY] Result:", JSON.stringify(rarity));
+
+            listing.is_rare_item = rarity.is_rare || false;
+            listing.rarity_score = rarity.rarity_score || 0;
+            listing.rarity_signals = rarity.rarity_signals || [];
+            listing.rarity_label = rarity.rarity_label || 'Common';
+
+            if (rarity.is_rare) {
+                listing.collector_bidding_enabled = true;
+                listing.bidding_ends_at = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+                console.log("[RARITY] 🏆 RARE ITEM DETECTED! Bidding enabled until:", listing.bidding_ends_at);
+            }
+
+            await listing.save();
+            console.log("[RARITY] Listing updated with rarity data");
+        } catch (rarityErr) {
+            console.error("[RARITY] Rarity analysis failed (non-blocking):", rarityErr.message);
+        }
+
     } catch (err) {
         console.error("AI Analysis failed (using fallback):", err.message);
         
@@ -100,6 +137,7 @@ exports.createListing = async (req, res) => {
     }
 
     res.status(201).json({ success: true, listing });
+
 };
 
 // GET /api/listings

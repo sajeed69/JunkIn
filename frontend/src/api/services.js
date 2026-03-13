@@ -56,3 +56,9 @@ export const aiService = {
     classifyScrap: (formData) =>
         api.post('/ai/classify-scrap', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
+
+export const bidService = {
+    placeBid: (listingId, amount) => api.post(`/bids/${listingId}`, { amount }),
+    getBids: (listingId) => api.get(`/bids/${listingId}`),
+    getAuctions: (params) => api.get('/bids/auctions/active', { params }),
+};

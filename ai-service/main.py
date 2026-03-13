@@ -1,12 +1,16 @@
 import os
+import re
 import json
 import uvicorn
 from datetime import datetime
 from typing import Optional, List, Dict
+from urllib.parse import quote_plus
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from groq import Groq
+import httpx
+from bs4 import BeautifulSoup
 
 # Load environment variables
 load_dotenv()
@@ -223,6 +227,220 @@ async def analyze_item(req: AnalysisRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ─────────────────────────────────────────────────
+# RARITY ANALYSIS ENDPOINT
+# ─────────────────────────────────────────────────
+
+class RarityRequest(BaseModel):
+    title: str
+    category: str
+    condition: str
+    brand: Optional[str] = None
+    description: Optional[str] = None
+    identified_item: Optional[str] = None
+
+
+class RarityResponse(BaseModel):
+    is_rare: bool
+    rarity_score: int
+    rarity_signals: List[str]
+    search_snippets: List[str]
+    item_name: str
+    rarity_label: str  # "Common", "Uncommon", "Rare", "Ultra Rare"
+
+
+RARITY_KEYWORDS = {
+    "rare": 2,
+    "limited edition": 3,
+    "collector": 1,
+    "collector's item": 2,
+    "collectible": 2,
+    "vintage": 2,
+    "antique": 2,
+    "discontinued": 2,
+    "out of production": 2,
+    "hard to find": 2,
+    "sought after": 1,
+    "museum": 1,
+}
+
+AUCTION_DOMAINS = [
+    "ebay.com", "catawiki.com", "sothebys.com", "christies.com",
+    "invaluable.com", "liveauctioneers.com", "heritage.com",
+    "auction", "bid",
+]
+
+
+async def web_search_rarity(query: str) -> Dict:
+    """
+    Search DuckDuckGo HTML for rarity signals.
+    Returns parsed snippets and detected signals.
+    """
+    signals = []
+    snippets = []
+    score = 0
+
+    try:
+        encoded_query = quote_plus(query)
+        url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+
+        print(f"[RARITY] Searching: {query}")
+
+        async with httpx.AsyncClient(timeout=10.0) as http_client:
+            response = await http_client.get(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            })
+
+        if response.status_code != 200:
+            print(f"[RARITY] Search returned status {response.status_code}")
+            return {"signals": signals, "snippets": snippets, "score": score}
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = soup.select(".result__body")[:10]  # top 10 results
+
+        for result in results:
+            title_el = result.select_one(".result__title")
+            snippet_el = result.select_one(".result__snippet")
+            link_el = result.select_one(".result__url")
+
+            title_text = title_el.get_text().strip().lower() if title_el else ""
+            snippet_text = snippet_el.get_text().strip().lower() if snippet_el else ""
+            link_text = link_el.get_text().strip().lower() if link_el else ""
+            combined_text = f"{title_text} {snippet_text} {link_text}"
+
+            # Collect readable snippets
+            if snippet_el:
+                readable = snippet_el.get_text().strip()
+                if len(readable) > 20:
+                    snippets.append(readable[:200])
+
+            # Check for rarity keywords
+            for keyword, points in RARITY_KEYWORDS.items():
+                if keyword in combined_text and keyword not in signals:
+                    signals.append(keyword)
+                    score += points
+                    print(f"[RARITY] Signal found: '{keyword}' (+{points})")
+
+            # Check for auction/collector domains
+            for domain in AUCTION_DOMAINS:
+                if domain in combined_text and "auction_site" not in signals:
+                    signals.append("auction_site")
+                    score += 2
+                    print(f"[RARITY] Auction domain found: '{domain}' (+2)")
+                    break
+
+        print(f"[RARITY] Search complete. Score: {score}, Signals: {signals}")
+
+    except Exception as e:
+        print(f"[RARITY] Web search error: {str(e)}")
+
+    return {"signals": signals, "snippets": snippets[:5], "score": score}
+
+
+def get_rarity_label(score: int) -> str:
+    """Map rarity score to a human-readable label."""
+    if score >= 10:
+        return "Ultra Rare"
+    elif score >= 5:
+        return "Rare"
+    elif score >= 3:
+        return "Uncommon"
+    return "Common"
+
+
+@app.post("/analyze-rarity", response_model=RarityResponse)
+async def analyze_rarity(req: RarityRequest):
+    """
+    Rarity Analysis Engine.
+    1. Identifies the item precisely using AI.
+    2. Searches the web for rarity signals.
+    3. Scores the item and returns classification.
+    """
+    try:
+        # Step 1: Use identified_item if available, else use title
+        item_name = req.identified_item or req.title
+        brand = req.brand or ""
+
+        # Step 2: Try AI-enhanced identification via Groq
+        if client:
+            try:
+                id_prompt = f"""Identify this item precisely for a rarity/collectibility search.
+Item: {req.title}
+Brand: {brand}
+Category: {req.category}
+Description: {req.description or 'N/A'}
+
+Return ONLY a JSON object:
+{{
+    "item_name": "precise searchable name",
+    "is_potentially_collectible": true/false,
+    "collectibility_reason": "brief reason"
+}}"""
+
+                id_response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": "You are a JSON-only bot that identifies items for collectibility research."},
+                        {"role": "user", "content": id_prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=200,
+                    response_format={"type": "json_object"},
+                )
+
+                id_data = json.loads(id_response.choices[0].message.content.strip())
+                item_name = id_data.get("item_name", item_name)
+                print(f"[RARITY] AI identified item as: {item_name}")
+                print(f"[RARITY] AI collectibility hint: {id_data.get('is_potentially_collectible', 'unknown')} - {id_data.get('collectibility_reason', '')}")
+
+            except Exception as e:
+                print(f"[RARITY] AI identification failed, using title: {str(e)}")
+
+        # Step 3: Web search for rarity
+        search_query = f"{item_name} {brand} rarity value collectors price"
+        search_results = await web_search_rarity(search_query)
+
+        rarity_score = search_results["score"]
+        rarity_signals = search_results["signals"]
+        search_snippets = search_results["snippets"]
+
+        # Step 4: Bonus points from condition/age context
+        condition_lower = req.condition.lower() if req.condition else ""
+        title_lower = req.title.lower()
+        desc_lower = (req.description or "").lower()
+        full_text = f"{title_lower} {desc_lower} {brand.lower()}"
+
+        for keyword, points in RARITY_KEYWORDS.items():
+            if keyword in full_text and keyword not in rarity_signals:
+                rarity_signals.append(f"{keyword} (from listing)")
+                rarity_score += points
+                print(f"[RARITY] Listing signal: '{keyword}' (+{points})")
+
+        is_rare = rarity_score >= 5
+        rarity_label = get_rarity_label(rarity_score)
+
+        print(f"[RARITY] === FINAL RESULT ===")
+        print(f"[RARITY] Item: {item_name}")
+        print(f"[RARITY] Score: {rarity_score}")
+        print(f"[RARITY] Is Rare: {is_rare}")
+        print(f"[RARITY] Label: {rarity_label}")
+        print(f"[RARITY] Signals: {rarity_signals}")
+
+        return RarityResponse(
+            is_rare=is_rare,
+            rarity_score=rarity_score,
+            rarity_signals=rarity_signals,
+            search_snippets=search_snippets,
+            item_name=item_name,
+            rarity_label=rarity_label,
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.on_event("startup")
 async def startup_event():
     test_groq_connection()
@@ -230,3 +448,6 @@ async def startup_event():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+
+

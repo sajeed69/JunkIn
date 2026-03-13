@@ -22,6 +22,7 @@ import KabadiwalaProfile from './pages/KabadiwalaProfile';
 import RecyclerDashboard from './pages/RecyclerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import RequestlyApiClient from './pages/RequestlyApiClient';
+import CollectorAuctions from './pages/CollectorAuctions';
 
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
                                 <Route path="/create-listing" element={<CreateListing />} />
                                 <Route path="/ai-analysis" element={<AIAnalysis />} />
                                 <Route path="/scrap-schedule" element={<ScrapSchedule />} />
+                                <Route path="/collector-auctions" element={<CollectorAuctions />} />
                             </Route>
 
                             {/* Kabadiwala only */}

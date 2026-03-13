@@ -17,7 +17,9 @@ const kabadiwalaRoutes = require('./modules/kabadiwala/kabadiwala.routes');
 const adminRoutes = require('./modules/admin/admin.routes');
 const aiRoutes = require('./modules/ai/ai.routes');
 const notificationRoutes = require('./modules/notifications/notification.routes');
+const bidRoutes = require('./modules/bids/bid.routes');
 const scrapController = require('./modules/scrap/scrap.controller');
+
 
 // Connect to MongoDB
 connectDB();
@@ -72,6 +74,7 @@ app.use('/api/kabadiwala', kabadiwalaRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/bids', bidRoutes);
 
 // 404
 app.all('*', (req, res) => {

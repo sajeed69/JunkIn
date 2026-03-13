@@ -565,7 +565,105 @@ export default function AIAnalysis() {
                                         </p>
                                     </div>
                                 </div>
+
+                                {/* ── Rarity Analysis Section ── */}
+                                {listing?.is_rare_item ? (
+                                    <div className="relative overflow-hidden border-2 border-amber-400/50 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-orange-900/10 rounded-2xl p-6 shadow-xl">
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_3s_ease-in-out_infinite]" style={{animation: 'shimmer 3s ease-in-out infinite'}} />
+                                        
+                                        <div className="relative">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
+                                                        <span className="material-symbols-outlined text-2xl">emoji_events</span>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-lg font-black text-amber-900 dark:text-amber-200 tracking-tight">Rare Collectible Detected!</h3>
+                                                        <p className="text-xs text-amber-700/70 dark:text-amber-400/70 font-medium">Our AI & web search identified this as a rare item</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-center">
+                                                    <div className="text-3xl font-black text-amber-600 dark:text-amber-400">{listing.rarity_score}</div>
+                                                    <div className="text-[8px] font-black text-amber-600/60 uppercase tracking-widest">Rarity Score</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Rarity Label Badge */}
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-md ${
+                                                    listing.rarity_label === 'Ultra Rare' 
+                                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+                                                        : listing.rarity_label === 'Rare'
+                                                        ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white'
+                                                        : 'bg-slate-200 text-slate-700'
+                                                }`}>
+                                                    {listing.rarity_label === 'Ultra Rare' ? '💎' : '🏆'} {listing.rarity_label}
+                                                </span>
+                                                <span className="text-[10px] text-amber-600/60 dark:text-amber-400/60 font-bold">
+                                                    Collector Bidding Active
+                                                </span>
+                                            </div>
+
+                                            {/* Rarity Signals */}
+                                            {listing.rarity_signals?.length > 0 && (
+                                                <div className="mb-4">
+                                                    <p className="text-[10px] font-black text-amber-800/50 dark:text-amber-300/50 uppercase tracking-widest mb-2">Detected Signals</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {listing.rarity_signals.map((signal, i) => (
+                                                            <span key={i} className="px-2.5 py-1 bg-amber-100 dark:bg-amber-800/30 text-amber-700 dark:text-amber-300 rounded-lg text-[11px] font-bold border border-amber-200 dark:border-amber-700/50">
+                                                                {signal}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Highest Bid & Timer */}
+                                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                                <div className="bg-white/60 dark:bg-slate-800/60 rounded-xl p-4 border border-amber-200/50 dark:border-amber-700/30">
+                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Current Highest Bid</p>
+                                                    <div className="text-2xl font-black text-amber-600 dark:text-amber-400">
+                                                        ₹{(listing.highest_bid || 0).toLocaleString()}
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white/60 dark:bg-slate-800/60 rounded-xl p-4 border border-amber-200/50 dark:border-amber-700/30">
+                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Bidding Ends</p>
+                                                    <div className="text-lg font-black text-slate-700 dark:text-slate-200">
+                                                        {listing.bidding_ends_at 
+                                                            ? new Date(listing.bidding_ends_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })
+                                                            : '48h from listing'
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* CTA to Auction Page */}
+                                            <button
+                                                onClick={() => navigate('/collector-auctions')}
+                                                className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">gavel</span>
+                                                View Collector Auctions
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : listing && (
+                                    <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-slate-400">search_off</span>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-sm text-slate-600 dark:text-slate-300">Rarity Analysis</h4>
+                                                <p className="text-xs text-slate-400">No rarity signals detected for this item</p>
+                                            </div>
+                                            <span className="ml-auto px-2 py-0.5 bg-slate-200 dark:bg-slate-800 rounded text-[10px] font-bold text-slate-500 uppercase">Common</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+
 
                             {/* CTA Buttons */}
                             <div className="flex flex-col gap-3 pt-2">

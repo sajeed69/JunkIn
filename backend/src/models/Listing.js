@@ -72,6 +72,16 @@ const listingSchema = new mongoose.Schema(
         convertedAt: Date,
         scheduledPickupDate: Date,
         scheduledTimeSlot: String,
+        // Rarity detection fields
+        is_rare_item: { type: Boolean, default: false },
+        rarity_score: { type: Number, default: 0 },
+        rarity_signals: [{ type: String }],
+        rarity_label: { type: String, default: 'Common' },
+        // Collector bidding fields
+        collector_bidding_enabled: { type: Boolean, default: false },
+        bidding_ends_at: Date,
+        highest_bid: { type: Number, default: 0 },
+
     },
     { timestamps: true }
 );
