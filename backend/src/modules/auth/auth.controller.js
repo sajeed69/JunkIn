@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const User = require('../../models/User');
 const Notification = require('../../models/Notification');
 
@@ -7,6 +8,41 @@ const signToken = (id) =>
     jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+// Email transporter for sending OTP
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
+
+const sendOtpEmail = async (email, otp) => {
+    try {
+        await transporter.sendMail({
+            from: `"JunkIn" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: '🔐 Your JunkIn Verification Code',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 30px; background: #f8fafc; border-radius: 16px;">
+                    <h2 style="color: #10b981; margin-bottom: 8px;">JunkIn Verification</h2>
+                    <p style="color: #64748b; font-size: 14px;">Use this code to verify your account:</p>
+                    <div style="background: #10b981; color: white; font-size: 32px; font-weight: bold; text-align: center; padding: 20px; border-radius: 12px; letter-spacing: 8px; margin: 20px 0;">
+                        ${otp}
+                    </div>
+                    <p style="color: #94a3b8; font-size: 12px;">This code expires in 10 minutes. Don't share it with anyone.</p>
+                </div>
+            `,
+        });
+        console.log(`✅ OTP email sent to ${email}`);
+        return true;
+    } catch (err) {
+        console.error(`❌ Failed to send OTP email to ${email}:`, err.message);
+        console.log(`📱 OTP for ${email}: ${otp} (email failed, logged here)`);
+        return false;
+    }
+};
 
 // POST /api/auth/register
 exports.register = async (req, res) => {
@@ -26,8 +62,8 @@ exports.register = async (req, res) => {
         isApproved: role !== 'kabadiwala', // kabadiwala needs approval
     });
 
-    // In production: send via email/SMS. In dev: log to console
-    console.log(`\n📱 OTP for ${email}: ${otp}\n`);
+    // Send OTP via email
+    await sendOtpEmail(email, otp);
 
     res.status(201).json({
         success: true,
@@ -94,7 +130,7 @@ exports.login = async (req, res) => {
         user.otp = otp;
         user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
         await user.save({ validateBeforeSave: false });
-        console.log(`\n📱 Resent OTP for ${email}: ${otp}\n`);
+        await sendOtpEmail(email, otp);
         return res.status(403).json({
             success: false,
             message: 'Account not verified. OTP resent.',
@@ -142,6 +178,6 @@ exports.resendOtp = async (req, res) => {
     user.otp = otp;
     user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await user.save({ validateBeforeSave: false });
-    console.log(`\n📱 Resent OTP for ${user.email}: ${otp}\n`);
+    await sendOtpEmail(user.email, otp);
     res.json({ success: true, message: 'OTP resent successfully.' });
 };
