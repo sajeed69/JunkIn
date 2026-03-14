@@ -16,6 +16,14 @@ const connectDB = async () => {
             serverSelectionTimeoutMS: 5000,
         });
         logger.info(`✅ MongoDB connected: ${conn.connection.host}`);
+
+        // Drop stale unique index on referral_code (was removed from schema)
+        try {
+            await conn.connection.collection('users').dropIndex('referral_code_1');
+            logger.info('🗑️ Dropped stale referral_code_1 index');
+        } catch (e) {
+            // Index doesn't exist — that's fine
+        }
     } catch (err) {
         logger.error(`❌ MongoDB connection error: ${err.message}`);
         process.exit(1);
