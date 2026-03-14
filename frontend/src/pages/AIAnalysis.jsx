@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { aiService } from '../api/services';
+import api from '../api/axios';
 import Button from '../components/ui/Button';
 import Loader from '../components/ui/Loader';
 import toast from 'react-hot-toast';
@@ -15,7 +16,6 @@ export default function AIAnalysis() {
     const [scrapPrices, setScrapPrices] = useState(null);
 
     const fetchScrapPrices = async () => {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
         try {
             // Check for Requestly Client Mock
             const mockPrices = localStorage.getItem('rq_mock_/api/scrap-prices');
@@ -26,8 +26,7 @@ export default function AIAnalysis() {
                 return;
             }
 
-            const response = await fetch(`${baseUrl}/api/scrap-prices`);
-            const data = await response.json();
+            const { data } = await api.get('/scrap-prices');
             setScrapPrices(data);
             console.log(`[LOG] Market Prices Updated: Plastic: ₹${data.plastic}, Iron: ₹${data.iron}, Copper: ₹${data.copper}, Electronics: ₹${data.electronics}`);
         } catch (error) {
@@ -146,7 +145,6 @@ export default function AIAnalysis() {
     ];
 
     const fetchMarketData = async () => {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
         try {
             // Check for Requestly Client Mocks
             const mockDemand = localStorage.getItem('rq_mock_/api/resale-demand');
@@ -158,16 +156,16 @@ export default function AIAnalysis() {
                 demand = JSON.parse(mockDemand);
                 console.log('%c[REQUESTLY CLIENT] Intercepted /api/resale-demand', 'color: #2ecc70; font-weight: bold');
             } else {
-                const demandRes = await fetch(`${baseUrl}/api/resale-demand`);
-                demand = await demandRes.json();
+                const { data } = await api.get('/resale-demand');
+                demand = data;
             }
 
             if (mockCollectors) {
                 collectors = JSON.parse(mockCollectors);
                 console.log('%c[REQUESTLY CLIENT] Intercepted /api/collector-availability', 'color: #2ecc70; font-weight: bold');
             } else {
-                const collectorRes = await fetch(`${baseUrl}/api/collector-availability`);
-                collectors = await collectorRes.json();
+                const { data } = await api.get('/collector-availability');
+                collectors = data;
             }
 
             setMarketData({ resaleDemand: demand, collectors });
