@@ -6,11 +6,15 @@ exports.analyzeItem = async (req, res) => {
         // 1. Get AI Analysis from AI Service
         let aiResult;
         try {
-            const aiResponse = await axios.post(`${process.env.AI_SERVICE_URL || 'http://localhost:8000'}/analyze-item`, req.body);
+            const aiResponse = await axios.post(
+                `${process.env.AI_SERVICE_URL || 'http://localhost:8001'}/analyze-item`,
+                req.body,
+                { timeout: 30000 } // 30s timeout for Render cold starts
+            );
             aiResult = aiResponse.data;
         } catch (err) {
             console.error('AI Service Error:', err.message);
-            return res.status(503).json({ success: false, message: 'AI Analysis Service is temporarily unavailable.' });
+            return res.status(503).json({ success: false, message: 'AI Analysis Service is temporarily unavailable. Please try again in a moment.' });
         }
 
         // 2. Fetch current scrap prices (can be intercepted by Requestly)
