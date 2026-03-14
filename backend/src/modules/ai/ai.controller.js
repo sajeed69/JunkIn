@@ -1,4 +1,5 @@
 const axios = require('axios');
+const scrapController = require('../scrap/scrap.controller');
 
 // POST /api/ai/analyze
 exports.analyzeItem = async (req, res) => {
@@ -9,7 +10,7 @@ exports.analyzeItem = async (req, res) => {
             const aiResponse = await axios.post(
                 `${process.env.AI_SERVICE_URL || 'http://localhost:8001'}/analyze-item`,
                 req.body,
-                { timeout: 30000 } // 30s timeout for Render cold starts
+                { timeout: 60000 } // 60s timeout for Render cold starts
             );
             aiResult = aiResponse.data;
         } catch (err) {
@@ -17,10 +18,8 @@ exports.analyzeItem = async (req, res) => {
             return res.status(503).json({ success: false, message: 'AI Analysis Service is temporarily unavailable. Please try again in a moment.' });
         }
 
-        // 2. Fetch current scrap prices (can be intercepted by Requestly)
-        const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-        const scrapPricesResponse = await axios.get(`${baseUrl}/api/scrap-prices`);
-        const scrapPrices = scrapPricesResponse.data;
+        // 2. Get scrap prices directly (no self-HTTP call)
+        const scrapPrices = scrapController.getScrapPricesData();
 
         // Default to 'iron' if material_type is missing or not in prices
         const material = aiResult.material_type || 'iron';

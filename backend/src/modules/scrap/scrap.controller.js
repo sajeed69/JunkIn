@@ -65,17 +65,18 @@ exports.getRates = async (req, res) => {
 };
 
 // GET /api/scrap-prices (Requestly Integration)
-exports.getScrapPrices = async (req, res) => {
-    // Default prices for simulation
-    const prices = {
-        plastic: 18,
-        iron: 32,
-        copper: 680,
-        electronics: 50,
-    };
+const SCRAP_PRICES = {
+    plastic: 18,
+    iron: 32,
+    copper: 680,
+    electronics: 50,
+};
 
-    console.log('[DEBUG] GET /api/scrap-prices - Current Market Rates:', prices);
-    res.json(prices);
+exports.getScrapPricesData = () => SCRAP_PRICES;
+
+exports.getScrapPrices = async (req, res) => {
+    console.log('[DEBUG] GET /api/scrap-prices - Current Market Rates:', SCRAP_PRICES);
+    res.json(SCRAP_PRICES);
 };
 // GET /api/resale-demand (Simulation)
 exports.getResaleDemand = async (req, res) => {

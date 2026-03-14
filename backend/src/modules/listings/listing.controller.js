@@ -44,7 +44,7 @@ exports.createListing = async (req, res) => {
             age,
             description,
             image_urls: images
-        }, { timeout: 15000 });
+        }, { timeout: 60000 });
         
         const ai = aiResponse.data;
         console.log("AI response:", ai);
